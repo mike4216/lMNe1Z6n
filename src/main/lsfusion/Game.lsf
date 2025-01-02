@@ -1,0 +1,26 @@
+MODULE Game;
+
+REQUIRE Team;
+
+CLASS Game 'Игра';
+
+date 'Дата' = DATA DATE (Game);
+hostTeam = DATA Team (Game);
+guestTeam = DATA Team (Game);
+hostTeamName 'Хозяева' (Game game) = name(hostTeam(game));
+guestTeamName 'Гости' (Game game) = name(guestTeam(game));
+
+CONSTRAINT hostTeam(Game team) = guestTeam(team) CHECKED BY hostTeam, guestTeam MESSAGE 'Хозяйская и гостевая команды должны быть разными';
+
+hostGoals 'Х голы' = DATA INTEGER (Game);
+guestGoals 'Г голы' = DATA INTEGER (Game);
+
+CONSTRAINT hostGoals(Game game) = guestGoals(game) MESSAGE 'Игра не может закончиться вничью';
+
+winner(Game game) = IF hostGoals(game) > guestGoals(game)
+    THEN hostTeam(game)
+    ELSE guestTeam(game);
+
+looser(Game game) = IF hostGoals(game) > guestGoals(game)
+    THEN guestTeam(game)
+    ELSE hostTeam(game);
