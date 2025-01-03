@@ -1,14 +1,15 @@
-MODULE Game;
+MODULE GameModule;
 
-REQUIRE Team;
+REQUIRE TeamModule;
 
 CLASS Game 'Игра';
 
-date 'Дата' = DATA DATE (Game);
-hostTeam = DATA Team (Game);
-guestTeam = DATA Team (Game);
-hostTeamName 'Хозяева' (Game game) = name(hostTeam(game));
-guestTeamName 'Гости' (Game game) = name(guestTeam(game));
+date 'Дата'     = DATA DATE (Game);
+hostTeam        = DATA Team (Game);
+guestTeam       = DATA Team (Game);
+
+hostTeamName 'Хозяева' (Game game) = teamName(hostTeam(game));
+guestTeamName 'Гости' (Game game) = teamName(guestTeam(game));
 
 CONSTRAINT hostTeam(Game team) = guestTeam(team) CHECKED BY hostTeam, guestTeam MESSAGE 'Хозяйская и гостевая команды должны быть разными';
 

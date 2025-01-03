@@ -1,0 +1,13 @@
+MODULE PlayerModule;
+
+REQUIRE TeamModule;
+
+CLASS Player 'Игрок';
+playerName 'Имя игрока'     = DATA STRING[50] (Player); 
+playerTeam 'Команда игрока' = DATA Team (Player);  
+
+FORM playersForm 'Игроки'    
+    OBJECTS playerObj = Player    
+    PROPERTIES(playerObj) playerName, playerTeam     
+    PROPERTIES(playerObj) NEW, EDIT, DELETE      
+    LIST Player OBJECT playerObj; 

@@ -1,18 +1,20 @@
-MODULE GameResult;
+MODULE GameResultModule;
 
-REQUIRE Game;
+REQUIRE GameModule;
 
 CLASS GameResult 'Р/И' {
-    win 'П',
-    winOT 'ПО',
-    winSO 'ПБ'
+    win     'П',
+    winOT   'ПО',
+    winSO   'ПБ'
 }
 
 resultName 'Имя' (GameResult game) = staticCaption(game) IF game IS GameResult IN base;
 
 userResult = DATA GameResult (Game);
+
 result (Game game) = OVERRIDE userResult(game),
     (GameResult.win IF ((hostGoals(game) (-) guestGoals(game)) > 1 OR (guestGoals(game) (-) hostGoals(game)) > 1));
+
 resultName 'Р/И' (Game game) = resultName(result(game));
 
 CONSTRAINT ((hostGoals(Game game) (-) guestGoals(game)) > 1 OR (hostGoals(game) (-) guestGoals(game)) < -1) AND userResult(game)

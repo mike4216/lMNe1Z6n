@@ -1,0 +1,19 @@
+MODULE GoalModule;
+
+REQUIRE GameModule, PlayerModule;
+
+CLASS Goal 'Гол';
+
+game 'Игра'         = DATA Game (Goal);
+player 'Игрок'      = DATA Player (Goal);
+
+//CONSTRAINT player(goal) AND game(goal) AND
+//    (team(player(goal)) != hostTeam(game(goal)) OR team(player(goal)) != guestTeam(game(goal)))
+//    MESSAGE 'Автор гола должен быть игроком одной из участвующих команд';
+
+FORM goals 'Голы'
+    OBJECTS goalObj = Goal
+    PROPERTIES(goalObj) game, player
+    PROPERTIES(goalObj) NEW, EDIT
+    
+    LIST Goal OBJECT goalObj;
