@@ -3,18 +3,29 @@ MODULE TeamModule;
 REQUIRE System;
 
 CLASS Team 'Команда';
-
 teamName 'Название команды' = DATA STRING[30] (Team) IN base;
 
-FORM teamForm 'Команда'
-    OBJECTS teamObj = Team PANEL
-    PROPERTIES(teamObj) teamName
-    EDIT Team OBJECT teamObj;
+CLASS Player 'Игрок';
+playerName 'Имя игрока' = DATA STRING[50] (Player) IN base;
+playerTeam 'Команда игрока' = DATA Team (Player) IN base;
 
-FORM teamsForm 'Команды'
-    OBJECTS teamObj = Team
-    PROPERTIES(teamObj) READONLY teamName
-    PROPERTIES(teamObj) NEWSESSION NEW, EDIT, DELETE
+// Свойство для вычисления количества игроков в команде
+playerCount 'Количество игроков' (Team team) = GROUP SUM 1 IF playerTeam(Player) == team;
 
-    LIST Team OBJECT teamObj;
+// Условие, которое запрещает добавлять нового игрока при достижении максимума
+allowAddPlayer 'Можно добавлять игроков?' (Team team) = playerCount(team) < 5;
 
+playerLimitExceeded 'Максимальное количество игроков достигнуто!' = DATA STRING[50](Team);
+
+
+FORM teamPlayersTable 'Составы команд'
+    OBJECTS t = Team
+    PROPERTIES(t) teamName, NEW, EDIT, DELETE
+
+    OBJECTS p = Player
+    PROPERTIES(p) playerName, playerTeam
+    PROPERTIES(p) NEW, EDIT, DELETE
+    FILTERS playerTeam(p) == t;
+NAVIGATOR {
+    NEW teamPlayersTable;
+}
