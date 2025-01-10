@@ -5,22 +5,17 @@ REQUIRE System;
 CLASS Team 'Команда';
 teamName 'Название команды' = DATA STRING[30] (Team) IN base;
 
-CLASS Player 'Игрок';
-playerName 'Имя игрока' = DATA STRING[50] (Player) IN base;
-playerTeam 'Команда игрока' = DATA Team (Player) IN base;
+playerCount'Количество игроков' (Team team) = GROUP SUM 1 IF playerTeam(Player) == team;
+sameTeamNameCount (STRING name) = GROUP SUM 1 IF teamName(Team) == name;
 
-// Свойство для вычисления количества игроков в команде
-playerCount 'Количество игроков' (Team team) = GROUP SUM 1 IF playerTeam(Player) == team;
-
-// Условие, которое запрещает добавлять нового игрока при достижении максимума
-allowAddPlayer 'Можно добавлять игроков?' (Team team) = playerCount(team) < 5;
-
-playerLimitExceeded 'Максимальное количество игроков достигнуто!' = DATA STRING[50](Team);
+CONSTRAINT playerCount(Team team) > 5  MESSAGE 'Игроков В команде может быть не более 5';
+CONSTRAINT playerCount(Team team)  == NULL OR playerCount(team) < 5  MESSAGE 'Игроков в Команде должно быть не менее 5';
+CONSTRAINT sameTeamNameCount(teamName(Team)) > 1 MESSAGE 'Команда с таким названием уже существует';
 
 
 FORM teamPlayersTable 'Составы команд'
     OBJECTS t = Team
-    PROPERTIES(t) teamName, NEW, EDIT, DELETE
+    PROPERTIES(t) teamName, playerCount, NEW, EDIT, DELETE
 
     OBJECTS p = Player
     PROPERTIES(p) playerName, playerTeam
