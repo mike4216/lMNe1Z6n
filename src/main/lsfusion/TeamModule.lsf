@@ -2,8 +2,14 @@ MODULE TeamModule;
 
 REQUIRE System;
 
+CLASS Player 'Игрок';
+playerFirstName     'Имя'      = DATA STRING[50] (Player) IN base;
+playerLastName      'Фамилия'  = DATA STRING[50] (Player) IN base;
+playerNumberName    'Номер'    = DATA INTEGER (Player) IN base;
+playerTeam          'Команда'  = DATA Team (Player) IN base;
+
 CLASS Team 'Команда';
-teamName 'Название команды' = DATA STRING[30] (Team) IN base;
+teamName 'Название команды'     = DATA STRING[30] (Team) IN base;
 
 playerCount'Количество игроков' (Team team) = GROUP SUM 1 IF playerTeam(Player) == team;
 sameTeamNameCount (STRING name) = GROUP SUM 1 IF teamName(Team) == name;
@@ -18,9 +24,10 @@ FORM teamPlayersTable 'Составы команд'
     PROPERTIES(t) teamName, playerCount, NEW, EDIT, DELETE
 
     OBJECTS p = Player
-    PROPERTIES(p) playerName, playerTeam
+    PROPERTIES(p) playerLastName, playerFirstName, playerNumberName, playerTeam
     PROPERTIES(p) NEW, EDIT, DELETE
     FILTERS playerTeam(p) == t;
+
 NAVIGATOR {
     NEW teamPlayersTable;
 }
