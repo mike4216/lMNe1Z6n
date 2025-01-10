@@ -5,26 +5,31 @@ REQUIRE System;
 CLASS Player 'Игрок';
 playerFirstName     'Имя'      = DATA STRING[50] (Player) IN base;
 playerLastName      'Фамилия'  = DATA STRING[50] (Player) IN base;
-playerNumberName    'Номер'    = DATA INTEGER (Player) IN base;
+playerNumber        'Номер'    = DATA INTEGER (Player) IN base;
 playerTeam          'Команда'  = DATA Team (Player) IN base;
 
 CLASS Team 'Команда';
 teamName 'Название команды'     = DATA STRING[30] (Team) IN base;
 
 playerCount'Количество игроков' (Team team) = GROUP SUM 1 IF playerTeam(Player) == team;
+
 sameTeamNameCount (STRING name) = GROUP SUM 1 IF teamName(Team) == name;
 
+playerNumberCount 'Количество игроков с одинаковым номером' (Team team, INTEGER number) =
+    GROUP SUM 1 IF playerTeam(Player) == team AND playerNumber(Player) == number;
+
+CONSTRAINT playerNumberCount(playerTeam(Player), playerNumber(Player)) > 1
+    MESSAGE 'Номер игрока должен быть уникальным в команде';
 CONSTRAINT playerCount(Team team) > 5  MESSAGE 'Игроков В команде может быть не более 5';
 CONSTRAINT playerCount(Team team)  == NULL OR playerCount(team) < 5  MESSAGE 'Игроков в Команде должно быть не менее 5';
 CONSTRAINT sameTeamNameCount(teamName(Team)) > 1 MESSAGE 'Команда с таким названием уже существует';
-
 
 FORM teamPlayersTable 'Составы команд'
     OBJECTS t = Team
     PROPERTIES(t) teamName, playerCount, NEW, EDIT, DELETE
 
     OBJECTS p = Player
-    PROPERTIES(p) playerLastName, playerFirstName, playerNumberName, playerTeam
+    PROPERTIES(p) playerLastName, playerFirstName, playerNumber, playerTeam
     PROPERTIES(p) NEW, EDIT, DELETE
     FILTERS playerTeam(p) == t;
 
