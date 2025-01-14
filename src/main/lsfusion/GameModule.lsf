@@ -8,7 +8,7 @@ CLASS GameResult 'Р/И' {
     winSO   'ПБ'
 }
 
-/* ----------------------- class Game start END---------------------------- */
+// ---------------------------- class Game start START------------------------------------- 
 CLASS Game 'Игра';
 date 'Дата'     = DATA DATE (Game);
 hostTeam        = DATA Team (Game);
@@ -42,22 +42,25 @@ result (Game game) = OVERRIDE userResult(game),
 resultName 'Р/И' (Game game) = resultName(result(game));
 
 CONSTRAINT
-    ((hostGoals(Game game) (-) guestGoals(game)) < 2 AND (hostGoals(game) (-) guestGoals(game)) > -2) AND NOT userResult(game)
+    ((hostGoals(Game game) (-) guestGoals(game)) < 2 AND (hostGoals(game) (-) guestGoals(game)) > -2) 
+        AND NOT userResult(game)
     MESSAGE 'Укажите результат игры';
-/* ----------------------- class Game END ---------------------------- */
+//------------------------------------ class Game END ------------------------------------- 
 
-/* ------------------ class ActivePlayer START ----------------------- */
-CLASS ActivePlayers 'Бомбардиры' : Player;
+// ------------------------------ class ActivePlayer START -------------------------------- 
+CLASS ActivePlayers 'Бомбардиры';
 gameOfScorer   'Игра'           = DATA Game (ActivePlayers);
 scorer         'Автор гола'     = DATA Player (ActivePlayers);
-teamOfScorer   'Команда'        = DATA Team (ActivePlayers);
 
 activePlayerFullName 'Полное имя' (ActivePlayers ap) =
     playerFirstName(scorer(ap)) + ' ' + playerLastName(scorer(ap));
 activePlayerNumber 'Номер игрока' (ActivePlayers ap) = playerNumber(scorer(ap));
-activePlayerTemaName 'Команда' (ActivePlayers ap) =  teamOfScorer(scorer(ap));
+activePlayerTeamStatus 'Команда' (ActivePlayers ap) =
+    IF playerTeam(scorer(ap)) == hostTeam(gameOfScorer(ap))
+    THEN 'Хозяева'
+    ELSE 'Гости';
 
-/* ------------------ class ActivePlayer END ----------------------- */
+// ------------------------------- class ActivePlayer END --------------------------------- 
 
 
 FORM gameDetails 'Детали игры'
@@ -70,14 +73,14 @@ FORM gameDetails 'Детали игры'
     
     OBJECTS ap = ActivePlayers 
     PROPERTIES(ap) scorer
-    PROPERTIES(ap) READONLY activePlayerNumber, activePlayerFullName
+    PROPERTIES(ap) READONLY activePlayerNumber, activePlayerFullName, activePlayerTeamStatus
     PROPERTIES(ap) NEW, DELETE
     FILTERS gameOfScorer(ap) == g
 ;
 
 DESIGN gameDetails {
     NEW gameDetailsContainer {
-        horizontal =TRUE;
+        horizontal = TRUE;
         caption = 'Детали матчей';
         MOVE BOX(g) {;
             height= 350;
