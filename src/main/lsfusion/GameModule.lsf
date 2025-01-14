@@ -8,6 +8,7 @@ CLASS GameResult 'Р/И' {
     winSO   'ПБ'
 }
 
+/* ----------------------- class Game start END---------------------------- */
 CLASS Game 'Игра';
 date 'Дата'     = DATA DATE (Game);
 hostTeam        = DATA Team (Game);
@@ -43,7 +44,9 @@ resultName 'Р/И' (Game game) = resultName(result(game));
 CONSTRAINT
     ((hostGoals(Game game) (-) guestGoals(game)) < 2 AND (hostGoals(game) (-) guestGoals(game)) > -2) AND NOT userResult(game)
     MESSAGE 'Укажите результат игры';
+/* ----------------------- class Game END ---------------------------- */
 
+/* ------------------ class ActivePlayer START ----------------------- */
 CLASS ActivePlayers 'Бомбардиры' : Player;
 gameOfScorer   'Игра'           = DATA Game (ActivePlayers);
 scorer         'Автор гола'     = DATA Player (ActivePlayers);
@@ -53,6 +56,9 @@ activePlayerFullName 'Полное имя' (ActivePlayers ap) =
     playerFirstName(scorer(ap)) + ' ' + playerLastName(scorer(ap));
 activePlayerNumber 'Номер игрока' (ActivePlayers ap) = playerNumber(scorer(ap));
 activePlayerTemaName 'Команда' (ActivePlayers ap) =  teamOfScorer(scorer(ap));
+
+/* ------------------ class ActivePlayer END ----------------------- */
+
 
 FORM gameDetails 'Детали игры'
     OBJECTS g = Game
@@ -69,11 +75,6 @@ FORM gameDetails 'Детали игры'
     FILTERS gameOfScorer(ap) == g
 ;
 
-NAVIGATOR {
-    NEW gameDetails;
-}
-
-
 DESIGN gameDetails {
     NEW gameDetailsContainer {
         horizontal =TRUE;
@@ -88,4 +89,8 @@ DESIGN gameDetails {
             caption = 'список бомбардиров для каждого матча';
         }
     }
+}
+
+NAVIGATOR {
+    NEW gameDetails;
 }
