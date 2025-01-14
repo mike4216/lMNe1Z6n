@@ -21,7 +21,6 @@ guestTeamName 'Гости' (Game game) = teamName(guestTeam(game));
 CONSTRAINT hostTeam(Game team) = guestTeam(team) CHECKED BY hostTeam, guestTeam
     MESSAGE 'Хозяйская и гостевая команды должны быть разными';
 
-
 CONSTRAINT hostGoals(Game game) = guestGoals(game) MESSAGE 'Игра не может закончиться вничью';
 
 winner(Game game) = IF hostGoals(game) > guestGoals(game)
@@ -45,60 +44,30 @@ CONSTRAINT
     ((hostGoals(Game game) (-) guestGoals(game)) < 2 AND (hostGoals(game) (-) guestGoals(game)) > -2) AND NOT userResult(game)
     MESSAGE 'Укажите результат игры';
 
-// Класс для хранения информации о голах
-CLASS ActivePlayers 'Игрок в игре';
+CLASS ActivePlayers 'Бомбардиры' : Player;
 gameOfScorer   'Игра'           = DATA Game (ActivePlayers);
 scorer         'Автор гола'     = DATA Player (ActivePlayers);
 teamOfScorer   'Команда'        = DATA Team (ActivePlayers);
 
-//// Класс для хранения информации о голах
-//CLASS ActivePlayer : Player;
-//gameOfScorer   'Игра' = DATA Game (ActivePlayer);
-//
-////scorerName          'Бомбардир' = name(scorer);
+activePlayerFullName 'Полное имя' (ActivePlayers ap) =
+    playerFirstName(scorer(ap)) + ' ' + playerLastName(scorer(ap));
+activePlayerNumber 'Номер игрока' (ActivePlayers ap) = playerNumber(scorer(ap));
+activePlayerTemaName 'Команда' (ActivePlayers ap) =  teamOfScorer(scorer(ap));
 
-//hostScorersCountForPlayer 'Указанные голы хозяев' (ActivePlayer ap) =
-//    GROUP SUM 1 IF gameOfScorer(ap) == gameOfScorer(ap) AND playerTeam(ap) == hostTeam(gameOfScorer(ap));
-
-
-
-// Используем GROUP AGGR с простым параметром playerNumberData
-//teamPlayerNumbers 'Номера игроков команды' (Team team) =
-//    GROUP AGGR INTEGER playerNumberData(ap)
-//WHEN playerTeam(ap) == team; // Добавляем условие WHEN
-//
-//// Привязываем к ActivePlayer
-//playerNumbersForActivePlayer 'Доступные номера игроков' (ActivePlayer ap) =
-//    teamPlayerNumbers(playerTeam(ap));
-//defaultPlayerFirstName 'Имя по умолчанию' (INTEGER number, Team team) =
-//    playerFirstName(ActivePlayer ap) IF playerNumber(ap) == number AND playerTeam(ap) == team;
-//
-//defaultPlayerLastName 'Фамилия по умолчанию' (INTEGER number, Team team) =
-//    playerLastName(ActivePlayer ap) IF playerNumber(ap) == number AND playerTeam(ap) == team;
-
-////
-////// Количество указанных голов для гостей
-////guestScorersCount 'Указанные голы гостей' (Game game) =
-////    GROUP SUM 1 IF(gameOfScorer(ActivePlayers) == game AND teamOfScorer(ActivePlayers) == guestTeam(game));
-////
-////// Ограничение для проверки авторов голов хозяев
-////CONSTRAINT hostScorersCount(Game game) < hostGoals(game)
-////    MESSAGE 'Добавьте авторов голов для команды хозяев';
-////
-////// Ограничение для проверки авторов голов гостей
-////CONSTRAINT guestScorersCount(Game game) < guestGoals(game)
-////    MESSAGE 'Добавьте авторов голов для команды гостей';
-//
-//
 FORM gameDetails 'Детали игры'
     OBJECTS g = Game
-    PROPERTIES(g) date, hostTeamName, guestTeamName, hostGoals, guestGoals, resultName, winner, looser, NEW, EDIT, DELETE
-
-    OBJECTS ap = ActivePlayers
+    PROPERTIES(g) date, hostTeamName, guestTeamName, hostGoals, guestGoals, resultName, winner, looser
+    PROPERTIES(g) NEW, EDIT, DELETE
+        
+    OBJECTS p = Player
+    FILTERS playerTeam(p) == guestTeam(g) OR playerTeam(p) == hostTeam(g)
+    
+    OBJECTS ap = ActivePlayers 
     PROPERTIES(ap) scorer
-    PROPERTIES(ap) READONLY teamOfScorer, gameOfScorer
-    PROPERTIES(ap) NEW, EDIT, DELETE
-    FILTERS gameOfScorer(ap) == g;
+    PROPERTIES(ap) READONLY activePlayerNumber, activePlayerFullName
+    PROPERTIES(ap) NEW, DELETE
+    FILTERS gameOfScorer(ap) == g
+;
 
 NAVIGATOR {
     NEW gameDetails;
