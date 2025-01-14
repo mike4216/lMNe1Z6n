@@ -72,3 +72,20 @@ FORM gameDetails 'Детали игры'
 NAVIGATOR {
     NEW gameDetails;
 }
+
+
+DESIGN gameDetails {
+    NEW gameDetailsContainer {
+        horizontal =TRUE;
+        caption = 'Детали матчей';
+        MOVE BOX(g) {;
+            height= 350;
+            width = 1000;
+            caption = 'Матчи';
+        }
+
+        MOVE BOX(ap) {
+            caption = 'список бомбардиров для каждого матча';
+        }
+    }
+}
