@@ -1,6 +1,6 @@
 MODULE TournamentTable;
 
-REQUIRE GameModule, GameResultModule, GoalModule, PlayerModule;
+REQUIRE GameModule, TeamModule;
 
 hostGamesPlayed = GROUP SUM 1 BY hostTeam(Game game);
 guestGamesPlayed = GROUP SUM 1 BY guestTeam(Game game);
@@ -34,31 +34,134 @@ place 'Место' (Team team) = PARTITION SUM 1 ORDER DESC points(team), gamesP
     (OVERRIDE goalsScored(team) (-) goalsConceded(team), 0), goalsScored(team);
 
 FORM scoreTable 'Турнирная таблица'
-//    OBJECTS players = Player
-//    PROPERTIES(players) name, team
-//    PROPERTIES(players) NEW, EDIT, DELETE
-
-    OBJECTS goal = Goal
-    PROPERTIES(goal) game, player
-
-    LIST Goal OBJECT goal
-    OBJECTS game = Game
-    PROPERTIES(game) date, hostTeamName, hostGoals, guestGoals, guestTeamName, resultName, NEW, DELETE
-
     OBJECTS team = Team
     PROPERTIES(team) place, teamName, gamesPlayed, gamesWon, gamesWonOT, gamesWonSO,
         gamesLostSO, gamesLostOT, gamesLost, goalsScored, goalsConceded, points, NEW, DELETE
-    ORDERS place(team);
+    ORDERS place(team)
+;
+
+//------------------------------- FORM BODY FROM GameModule ----------------------------------------------
+EXTEND FORM scoreTable
+    OBJECTS g = Game
+    PROPERTIES(g) date, hostTeamName, guestTeamName, hostGoals, guestGoals, resultName, winnerTeamName
+    PROPERTIES(g) PANEL remainingHostGoals, remainingGuestGoals, isGoalsCountValid
+    PROPERTIES(g) NEW, EDIT, DELETE
+
+    OBJECTS p = Player
+    FILTERS playerTeam(p) == guestTeam(g) OR playerTeam(p) == hostTeam(g)
+
+    OBJECTS ap = ActivePlayers
+    PROPERTIES(ap) scorer
+    PROPERTIES(ap) READONLY activePlayerNumber, activePlayerFullName, activePlayerTeamStatus
+    PROPERTIES(ap) NEW, DELETE
+    FILTERS gameOfScorer(ap) == g
+;
+
+//------------------------------- FORM BODY FROM TeamModule -----------------------------------------------
+EXTEND FORM scoreTable
+    OBJECTS t = Team
+    PROPERTIES(t) teamName, playerCount, NEW, EDIT, DELETE
+
+    OBJECTS pl = Player
+    PROPERTIES(pl) playerLastName, playerFirstName, playerNumber, playerTeam
+    PROPERTIES(pl) NEW, EDIT, DELETE
+    FILTERS playerTeam(pl) == t;
+;
+
+DESIGN scoreTable {
+    NEW gameAndTeamDetailsContainer {
+        tabbed = TRUE;
+        fill = 1;
+        NEW teamDetailsContainer {
+            caption = 'Команды и их составы';
+            horizontal = TRUE;
+            MOVE BOX(t) {
+                caption = 'Создание команды';
+            };
+            MOVE BOX(pl) {
+                caption = 'Добавление игроков в команду';
+            };
+        }
+        NEW gameDetailContainer {
+            caption = 'Детали матчей';
+            horizontal = TRUE;
+            fill = 1;
+            defaultComponent = TRUE;
+            MOVE BOX(g) {;
+                height= 350;
+                width = 900;
+                caption = 'Матчи';
+            }
+            MOVE BOX(ap) {
+                //            width = 700;
+                fill = 1;
+                caption = 'список бомбардиров для каждого матча';
+
+                MOVE PROPERTY (remainingHostGoals(g)){
+                    toolTip = 'Этот показатель нужен для контроля кол-ва голов для хозяев, введеных вами в  таблице бомбардиров и кол-ва голов, которые забили хозяева в матче';
+                    background = #bcd2ff;
+                    foreground = #ff0627;
+                };
+                MOVE PROPERTY (remainingGuestGoals(g)){
+                    background = #bcd2ff;
+                    foreground = #ff0627;
+                    toolTip = 'Этот показатель нужен для контроля кол-ва голов для гостей, введеных вами в  таблице бомбардиров и кол-ва голов, которые забили гости в матче';
+                };
+                MOVE PROPERTY (isGoalsCountValid(g)) {
+                    background = #bcd2ff;
+                    foreground = #ff0627;
+                    caption = 'Соответсвие общего количества голов в матче колличеству голов, которым присвоены авторы в таблице бомбардиров';
+                    toolTip = 'Если чек бокс выбран - значит общая сумма голов, забитых в матче соответсвует кол-ву голов, указанных вами в таблице бобардиров';
+                };
+            }
+        
+        }
+    }
+    
+    NEW tournamentTableContainer {
+        fill = 1;
+        caption = 'Турнирная таблица';
+        collapsed = FALSE;
+        MOVE BOX(team);
+    }
+} 
 
 
 //DESIGN scoreTable {
+//    NEW TournamenTableWithTabs {
+//        fill = 1;
+//        tabbed = TRUE;
+//        NEW Games {
+//            tabbed = TRUE;
+//            caption = 'Статистика турнира';
+//            MOVE BOX (game) {
+//                caption = 'Результаты игры';
+//            }
+//            MOVE BOX (team) {
+//                caption = 'Команды';
+//            }
+//        }
+//        
+//        NEW PlayersAndTeams {
+//            caption = 'Команды и соствы';
+//            
+//        }
+//        
+//        
+//    }
+//}
 //    NEW gameDetails {
 //        fill = 1;
-//        MOVE BOX (goal);
-//       
+//        tabbed = TRUE;
+//        MOVE BOX (goal) {
+//            caption = 'Статистика игр';
+//        }
+//        
+//
 //        NEW gameDetail1 {
-//            fill = 1;
-////            tabbed = TRUE;
+//            caption = 'результыт'
+//            fill = 2;
+//            tabbed = TRUE;
 //            MOVE BOX (game) {
 //                caption = 'Результаты игры';
 //            }
