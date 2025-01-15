@@ -25,8 +25,10 @@ CONSTRAINT hostTeam(Game team) = guestTeam(team) CHECKED BY hostTeam, guestTeam
 CONSTRAINT hostGoals(Game game) = guestGoals(game) MESSAGE 'Игра не может закончиться вничью';
 
 winner(Game game) = IF hostGoals(game) > guestGoals(game)
-    THEN hostTeam(game)
-    ELSE guestTeam(game);
+THEN hostTeam(game)
+ELSE guestTeam(game);
+
+winnerTeamName 'Подбедитель'(Game game) = teamName(winner(game));
 
 looser(Game game) = IF hostGoals(game) > guestGoals(game)
     THEN guestTeam(game)
@@ -46,7 +48,7 @@ CONSTRAINT
         AND NOT userResult(game)
     MESSAGE 'Укажите результат игры';
 
-totalGoals 'Общая сумма голов' (Game g) = hostGoals(g) + guestGoals(g);
+totalGoals 'Общая сумма голов' (Game g) = hostGoals(g) (+) guestGoals(g);
 //------------------------------------ class Game END ------------------------------------- 
 
 // ------------------------------ class ActivePlayer START -------------------------------- 
@@ -63,20 +65,37 @@ activePlayerTeamStatus 'Команда' (ActivePlayers ap) =
     ELSE 'Гости';
 
 activePlayersGoalsCount 'Записи о голах' (Game g) =
-    GROUP SUM 1 IF gameOfScorer(ActivePlayers ap) == g;
+    GROUP SUM 0 IF gameOfScorer(ActivePlayers ap) == g;
 
-isGoalsCountValid(Game g) = activePlayersGoalsCount(g)!= totalGoals(g);
+isGoalsCountValid(Game g) = totalGoals(g) == activePlayersGoalsCount(g);
 
 CONSTRAINT isGoalsCountValid(Game g)
-    MESSAGE 'Общая сумма голов в матче не совпадает с количеством голов в таблице бомбардиров';
+    MESSAGE 'Количество голов, забитых в матче не соотвествует количеству, которое вы указали в таблице бомбардиров';
+
+remainingHostGoals 'Осталось добавить голов "Хозяев"' (Game g) =
+   IF  hostGoals(g) == 0 
+   THEN 0 
+   ELSE  hostGoals(g) (-) GROUP SUM 1 IF gameOfScorer(ActivePlayers ap) == g AND playerTeam(scorer(ap)) == hostTeam(g);
+
+remainingGuestGoals 'Осталось добавить голов "Гостей"' (Game g) =
+    IF  guestGoals(g) == 0 
+    THEN 0 
+    ELSE guestGoals(g) (-) GROUP SUM 1 IF gameOfScorer(ActivePlayers ap) == g AND playerTeam(scorer(ap)) == guestTeam(g);
+
+CONSTRAINT remainingHostGoals(Game g) != 0
+    MESSAGE 'Количество голов, которые забили "Хозяева" не соответствует вашим записям в таблице бомбардиров. Проверьте Контрольную таблицу';
+
+CONSTRAINT remainingGuestGoals(Game g) != 0
+    MESSAGE 'Количество голов, которые забили "Гости" не соответствует вашим записям в таблице бомбардиров. Проверьте Контрольную таблицу';
 // ------------------------------- class ActivePlayer END --------------------------------- 
 
 
 FORM gameDetails 'Детали игры'
     OBJECTS g = Game
-    PROPERTIES(g) isGoalsCountValid ,activePlayersGoalsCount, totalGoals, date, hostTeamName, guestTeamName, hostGoals, guestGoals, resultName, winner, looser
+    PROPERTIES(g) date, hostTeamName, guestTeamName, hostGoals, guestGoals, resultName, winnerTeamName
+    PROPERTIES(g) PANEL remainingHostGoals, remainingGuestGoals, isGoalsCountValid 
     PROPERTIES(g) NEW, EDIT, DELETE
-        
+
     OBJECTS p = Player
     FILTERS playerTeam(p) == guestTeam(g) OR playerTeam(p) == hostTeam(g)
     
@@ -84,7 +103,7 @@ FORM gameDetails 'Детали игры'
     PROPERTIES(ap) scorer
     PROPERTIES(ap) READONLY activePlayerNumber, activePlayerFullName, activePlayerTeamStatus
     PROPERTIES(ap) NEW, DELETE
-    FILTERS gameOfScorer(ap) == g
+    FILTERS gameOfScorer(ap) == g;
 ;
 
 DESIGN gameDetails {
@@ -93,13 +112,29 @@ DESIGN gameDetails {
         caption = 'Детали матчей';
         MOVE BOX(g) {;
             height= 350;
-            width = 1000;
+            width = 900;
             caption = 'Матчи';
         }
-
         MOVE BOX(ap) {
-            width = 600;
+//            width = 700;
+            fill = 1;
             caption = 'список бомбардиров для каждого матча';
+            MOVE PROPERTY (remainingHostGoals(g)){
+                toolTip = 'Этот показатель нужен для контроля кол-ва голов для хозяев, введеных вами в  таблице бомбардиров и кол-ва голов, которые забили хозяева в матче';
+                background = #bcd2ff;
+                foreground = #ff0627;
+            };
+            MOVE PROPERTY (remainingGuestGoals(g)){
+                background = #bcd2ff;
+                foreground = #ff0627;
+                toolTip = 'Этот показатель нужен для контроля кол-ва голов для гостей, введеных вами в  таблице бомбардиров и кол-ва голов, которые забили гости в матче';
+            };
+            MOVE PROPERTY (isGoalsCountValid(g)) {
+                background = #bcd2ff;
+                foreground = #ff0627;
+                caption = 'Соответсвие общего количества голов в матче колличеству голов, которым присвоены авторы в таблице бомбардиров';
+                toolTip = 'Если чек бокс выбран - значит общая сумма голов, забитых в матче соответсвует кол-ву голов, указанных вами в таблице бобардиров';
+            };
         }
     }
 }
