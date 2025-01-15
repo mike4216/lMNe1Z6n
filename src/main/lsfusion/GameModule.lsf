@@ -25,8 +25,8 @@ CONSTRAINT hostTeam(Game team) = guestTeam(team) CHECKED BY hostTeam, guestTeam
 CONSTRAINT hostGoals(Game game) = guestGoals(game) MESSAGE 'Игра не может закончиться вничью';
 
 winner(Game game) = IF hostGoals(game) > guestGoals(game)
-THEN hostTeam(game)
-ELSE guestTeam(game);
+    THEN hostTeam(game)
+    ELSE guestTeam(game);
 
 winnerTeamName 'Подбедитель'(Game game) = teamName(winner(game));
 
@@ -105,39 +105,6 @@ FORM gameDetails 'Детали игры'
     PROPERTIES(ap) NEW, DELETE
     FILTERS gameOfScorer(ap) == g;
 ;
-
-DESIGN gameDetails {
-    NEW gameDetailsContainer {
-        horizontal = TRUE;
-        caption = 'Детали матчей';
-        MOVE BOX(g) {;
-            height= 350;
-            width = 900;
-            caption = 'Матчи';
-        }
-        MOVE BOX(ap) {
-//            width = 700;
-            fill = 1;
-            caption = 'список бомбардиров для каждого матча';
-            MOVE PROPERTY (remainingHostGoals(g)){
-                toolTip = 'Этот показатель нужен для контроля кол-ва голов для хозяев, введеных вами в  таблице бомбардиров и кол-ва голов, которые забили хозяева в матче';
-                background = #bcd2ff;
-                foreground = #ff0627;
-            };
-            MOVE PROPERTY (remainingGuestGoals(g)){
-                background = #bcd2ff;
-                foreground = #ff0627;
-                toolTip = 'Этот показатель нужен для контроля кол-ва голов для гостей, введеных вами в  таблице бомбардиров и кол-ва голов, которые забили гости в матче';
-            };
-            MOVE PROPERTY (isGoalsCountValid(g)) {
-                background = #bcd2ff;
-                foreground = #ff0627;
-                caption = 'Соответсвие общего количества голов в матче колличеству голов, которым присвоены авторы в таблице бомбардиров';
-                toolTip = 'Если чек бокс выбран - значит общая сумма голов, забитых в матче соответсвует кол-ву голов, указанных вами в таблице бобардиров';
-            };
-        }
-    }
-}
 
 NAVIGATOR {
     NEW gameDetails;
