@@ -60,10 +60,10 @@ EXTEND FORM scoreTable
 //------------------------------- FORM BODY FROM TeamModule -----------------------------------------------
 EXTEND FORM scoreTable
     OBJECTS t = Team
-    PROPERTIES(t) teamName, playerCount, NEW, EDIT, DELETE
+    PROPERTIES(t) teamName, teamPlayersCount, NEW, EDIT, DELETE
 
     OBJECTS pl = Player
-    PROPERTIES(pl) playerLastName, playerFirstName, playerNumber, playerTeam
+    PROPERTIES(pl) playerLastName, playerFirstName, playerNumber, playerTeamName
     PROPERTIES(pl) NEW, EDIT, DELETE
     FILTERS playerTeam(pl) == t;
 ;
