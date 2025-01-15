@@ -45,6 +45,8 @@ CONSTRAINT
     ((hostGoals(Game game) (-) guestGoals(game)) < 2 AND (hostGoals(game) (-) guestGoals(game)) > -2) 
         AND NOT userResult(game)
     MESSAGE 'Укажите результат игры';
+
+totalGoals 'Общая сумма голов' (Game g) = hostGoals(g) + guestGoals(g);
 //------------------------------------ class Game END ------------------------------------- 
 
 // ------------------------------ class ActivePlayer START -------------------------------- 
@@ -60,12 +62,19 @@ activePlayerTeamStatus 'Команда' (ActivePlayers ap) =
     THEN 'Хозяева'
     ELSE 'Гости';
 
+activePlayersGoalsCount 'Записи о голах' (Game g) =
+    GROUP SUM 1 IF gameOfScorer(ActivePlayers ap) == g;
+
+isGoalsCountValid(Game g) = activePlayersGoalsCount(g)!= totalGoals(g);
+
+CONSTRAINT isGoalsCountValid(Game g)
+    MESSAGE 'Общая сумма голов в матче не совпадает с количеством голов в таблице бомбардиров';
 // ------------------------------- class ActivePlayer END --------------------------------- 
 
 
 FORM gameDetails 'Детали игры'
     OBJECTS g = Game
-    PROPERTIES(g) date, hostTeamName, guestTeamName, hostGoals, guestGoals, resultName, winner, looser
+    PROPERTIES(g) isGoalsCountValid ,activePlayersGoalsCount, totalGoals, date, hostTeamName, guestTeamName, hostGoals, guestGoals, resultName, winner, looser
     PROPERTIES(g) NEW, EDIT, DELETE
         
     OBJECTS p = Player
@@ -89,6 +98,7 @@ DESIGN gameDetails {
         }
 
         MOVE BOX(ap) {
+            width = 600;
             caption = 'список бомбардиров для каждого матча';
         }
     }
