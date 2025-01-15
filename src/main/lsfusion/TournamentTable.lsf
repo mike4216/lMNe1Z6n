@@ -126,52 +126,6 @@ DESIGN scoreTable {
     }
 } 
 
-
-//DESIGN scoreTable {
-//    NEW TournamenTableWithTabs {
-//        fill = 1;
-//        tabbed = TRUE;
-//        NEW Games {
-//            tabbed = TRUE;
-//            caption = 'Статистика турнира';
-//            MOVE BOX (game) {
-//                caption = 'Результаты игры';
-//            }
-//            MOVE BOX (team) {
-//                caption = 'Команды';
-//            }
-//        }
-//        
-//        NEW PlayersAndTeams {
-//            caption = 'Команды и соствы';
-//            
-//        }
-//        
-//        
-//    }
-//}
-//    NEW gameDetails {
-//        fill = 1;
-//        tabbed = TRUE;
-//        MOVE BOX (goal) {
-//            caption = 'Статистика игр';
-//        }
-//        
-//
-//        NEW gameDetail1 {
-//            caption = 'результыт'
-//            fill = 2;
-//            tabbed = TRUE;
-//            MOVE BOX (game) {
-//                caption = 'Результаты игры';
-//            }
-//            MOVE BOX (team) {
-//                caption = 'Команды';
-//            }
-//        }
-//    }
-//}
-
 NAVIGATOR {
     NEW scoreTable;
 }

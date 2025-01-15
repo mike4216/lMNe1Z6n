@@ -1,4 +1,4 @@
 MODULE Main;
 
-REQUIRE HockeyStats;
+REQUIRE TournamentTable;
 
