@@ -20,6 +20,12 @@ sameTeamNameCount (STRING name) = GROUP SUM 1 IF teamName(Team t) == name;
 playerNumberCount 'Количество игроков с одинаковым номером' (Team team, INTEGER number) =
     GROUP SUM 1 IF playerTeam(Player p) == team AND playerNumber(p) == number;
 
+addedPlayersCount (Team team) = GROUP SUM 1 IF playerTeam(Player p) == team;
+addedPlayersWithNumberCount (Team team) = GROUP SUM 1 IF  playerTeam(Player p) == team AND playerNumber(p) > 0;
+
+CONSTRAINT addedPlayersCount(Team team) != addedPlayersWithNumberCount(team)
+    MESSAGE 'Всем игрокам должен быть присвоем номер';
+
 CONSTRAINT playerNumberCount(playerTeam(Player p), playerNumber(p)) > 1
     MESSAGE 'Номер игрока должен быть уникальным в команде';
 
