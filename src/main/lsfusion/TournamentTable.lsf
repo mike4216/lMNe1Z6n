@@ -44,7 +44,7 @@ FORM scoreTable 'Турнирная таблица'
 EXTEND FORM scoreTable
     OBJECTS g = Game
     PROPERTIES(g) date, hostTeamName, guestTeamName, hostGoals, guestGoals, resultName, winnerTeamName
-    PROPERTIES(g) PANEL remainingHostGoals, remainingGuestGoals, isGoalsCountValid
+    PROPERTIES(g) PANEL remainingHostGoals, remainingGuestGoals
     PROPERTIES(g) NEW, EDIT, DELETE
 
     OBJECTS p = Player
@@ -106,12 +106,6 @@ DESIGN scoreTable {
                     background = #bcd2ff;
                     foreground = #ff0627;
                     toolTip = 'Этот показатель нужен для контроля кол-ва голов для гостей, введеных вами в  таблице бомбардиров и кол-ва голов, которые забили гости в матче';
-                };
-                MOVE PROPERTY (isGoalsCountValid(g)) {
-                    background = #bcd2ff;
-                    foreground = #ff0627;
-                    caption = 'Соответсвие общего количества голов в матче колличеству голов, которым присвоены авторы в таблице бомбардиров';
-                    toolTip = 'Если чек бокс выбран - значит общая сумма голов, забитых в матче соответсвует кол-ву голов, указанных вами в таблице бобардиров';
                 };
             }
         

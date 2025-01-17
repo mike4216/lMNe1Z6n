@@ -65,11 +65,11 @@ activePlayerTeamStatus 'Команда' (ActivePlayers ap) =
     ELSE 'Гости';
 
 activePlayersGoalsCount 'Записи о голах' (Game g) =
-    GROUP SUM 0 IF gameOfScorer(ActivePlayers ap) == g;
+    GROUP SUM 1 IF gameOfScorer(ActivePlayers ap) == g;
 
-isGoalsCountValid(Game g) = totalGoals(g) == activePlayersGoalsCount(g);
+isGoalsCountInvalid(Game g) = totalGoals(g) != activePlayersGoalsCount(g);
 
-CONSTRAINT isGoalsCountValid(Game g)
+CONSTRAINT isGoalsCountInvalid(Game g)
     MESSAGE 'Количество голов, забитых в матче не соотвествует количеству, которое вы указали в таблице бомбардиров';
 
 remainingHostGoals 'Осталось добавить голов "Хозяев"' (Game g) =
@@ -93,7 +93,7 @@ CONSTRAINT remainingGuestGoals(Game g) != 0
 FORM gameDetails 'Детали игры'
     OBJECTS g = Game
     PROPERTIES(g) date, hostTeamName, guestTeamName, hostGoals, guestGoals, resultName, winnerTeamName
-    PROPERTIES(g) PANEL remainingHostGoals, remainingGuestGoals, isGoalsCountValid 
+    PROPERTIES(g) PANEL remainingHostGoals, remainingGuestGoals 
     PROPERTIES(g) NEW, EDIT, DELETE
     
     OBJECTS ap = ActivePlayers 
