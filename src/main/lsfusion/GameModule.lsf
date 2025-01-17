@@ -13,7 +13,7 @@ CLASS Game 'Игра';
 date 'Дата'     = DATA DATE (Game);
 hostTeam        = DATA Team (Game);
 guestTeam       = DATA Team (Game);
-hostGoals 'Х голы' = DATA INTEGER (Game);
+hostGoals 'Х голы'  = DATA INTEGER (Game);
 guestGoals 'Г голы' = DATA INTEGER (Game);
 
 hostTeamName 'Хозяева' (Game game) = teamName(hostTeam(game));
@@ -53,8 +53,8 @@ totalGoals 'Общая сумма голов' (Game g) = hostGoals(g) (+) guestG
 
 // ------------------------------ class ActivePlayer START -------------------------------- 
 CLASS ActivePlayers 'Бомбардиры';
-gameOfScorer   'Игра'           = DATA Game (ActivePlayers);
-scorer         'Автор гола'     = DATA Player (ActivePlayers);
+scorer         'Автор гола(ID)' = DATA Player (ActivePlayers);
+gameOfScorer                    = DATA Game (ActivePlayers);
 
 activePlayerFullName 'Полное имя' (ActivePlayers ap) =
     playerFirstName(scorer(ap)) + ' ' + playerLastName(scorer(ap));
@@ -95,15 +95,21 @@ FORM gameDetails 'Детали игры'
     PROPERTIES(g) date, hostTeamName, guestTeamName, hostGoals, guestGoals, resultName, winnerTeamName
     PROPERTIES(g) PANEL remainingHostGoals, remainingGuestGoals, isGoalsCountValid 
     PROPERTIES(g) NEW, EDIT, DELETE
-
-    OBJECTS p = Player
-    FILTERS playerTeam(p) == guestTeam(g) OR playerTeam(p) == hostTeam(g)
     
     OBJECTS ap = ActivePlayers 
     PROPERTIES(ap) scorer
     PROPERTIES(ap) READONLY activePlayerNumber, activePlayerFullName, activePlayerTeamStatus
     PROPERTIES(ap) NEW, DELETE
     FILTERS gameOfScorer(ap) == g;
+;
+
+FORM playersInGame 'Игроки в матче'
+    OBJECTS g = Game
+    
+    OBJECTS p = Player
+    PROPERTIES(p) playerNumber, playerLastName, playerFirstName, playerTeamName
+    FILTERS playerTeam(p) == guestTeam(g) OR playerTeam(p) == hostTeam(g)
+    LIST Player OBJECT p
 ;
 
 NAVIGATOR {
