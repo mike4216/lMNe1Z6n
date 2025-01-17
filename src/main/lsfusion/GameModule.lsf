@@ -111,7 +111,3 @@ FORM playersInGame 'Игроки в матче'
     FILTERS playerTeam(p) == guestTeam(g) OR playerTeam(p) == hostTeam(g)
     LIST Player OBJECT p
 ;
-
-//NAVIGATOR {
-//    NEW gameDetails;
-//}
