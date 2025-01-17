@@ -29,9 +29,6 @@ CONSTRAINT addedPlayersCount(Team team) != addedPlayersWithNumberCount(team)
 CONSTRAINT playerNumberCount(playerTeam(Player p), playerNumber(p)) > 1
     MESSAGE 'Номер игрока должен быть уникальным в команде';
 
-CONSTRAINT playerNumberCount(playerTeam(Player p), playerNumber(p)) > 1
-    MESSAGE 'Номер игрока должен быть уникальным в команде';
-
 CONSTRAINT teamPlayersCount(Team team) > teamPLayersLimit(team) 
     MESSAGE 'Вы добавили слишком много игроков (больше указанного лимита)';
 
