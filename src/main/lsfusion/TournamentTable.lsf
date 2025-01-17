@@ -128,4 +128,6 @@ DESIGN scoreTable {
 
 NAVIGATOR {
     NEW scoreTable;
+    NEW teamPlayersTable;
+    NEW gameDetails;
 }

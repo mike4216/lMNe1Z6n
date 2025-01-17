@@ -112,6 +112,6 @@ FORM playersInGame 'Игроки в матче'
     LIST Player OBJECT p
 ;
 
-NAVIGATOR {
-    NEW gameDetails;
-}
+//NAVIGATOR {
+//    NEW gameDetails;
+//}

@@ -50,6 +50,6 @@ FORM teamPlayersTable 'Составы команд'
     FILTERS playerTeam(p) == t
 ;
 
-NAVIGATOR {
-    NEW teamPlayersTable;
-}
+//NAVIGATOR {
+//    NEW teamPlayersTable;
+//}
